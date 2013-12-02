@@ -33,7 +33,7 @@ function getTickerData(ticker) {
 
     var titles = this.evaluate(getTitles);
     var values = this.evaluate(getEPS);
- 
+
     // The arrays should have the same length:
     casper.echo("titles length: " + titles.length + " items: " + titles);
     casper.echo("values length: " + values.length + " items: " + values);
@@ -62,6 +62,9 @@ casper.on("page.error", function(msg, backtrace) {
 //===============================
 // Start
 //===============================
+casper.userAgent(
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9) AppleWebKit/537.71 (KHTML, like Gecko) Version/7.0 Safari/537.71'
+);
 var symbols = [];
 casper.start().then(function () {
   // Read the symbols:
