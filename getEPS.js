@@ -2,6 +2,7 @@ var fs = require('fs');
 var casper = require('casper').create();
 
 var basePath = 'http://financials.morningstar.com/ratios/r.html?t='
+var dataFile = 'eps-data.csv'
 
 function pathForTicker(ticker) {
   return (basePath + ticker);
@@ -37,6 +38,13 @@ function getTickerData(ticker) {
     // The arrays should have the same length:
     casper.echo("titles length: " + titles.length + " items: " + titles);
     casper.echo("values length: " + values.length + " items: " + values);
+
+    fs.write(dataFile, ticker, 'a');
+    fs.write(dataFile, '\n', 'a');
+    fs.write(dataFile, titles.join(','), 'a');
+    fs.write(dataFile, '\n', 'a');
+    fs.write(dataFile, values.join(','), 'a');
+    fs.write(dataFile, '\n\n', 'a');
   });
 }
 
@@ -69,6 +77,10 @@ var symbols = [];
 casper.start().then(function () {
   // Read the symbols:
   symbols = (fs.read('symbols.txt').split('\n')); 
+
+  // overwrite the existing data file
+  fs.write(dataFile, '');
+
   // Get the data for each symbol:
   this.each(symbols, function(self, symbol) {
     self.then(function() {

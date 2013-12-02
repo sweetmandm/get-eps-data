@@ -6,7 +6,7 @@ Usage:
   1. Enter the stock tickers (one per line) in symbols.txt.  
   2. run the script: `casperjs getEPS.js`
 
-This does not currently do anything with the data, it just prints it to the console.
+This currently just puts the data in a simple csv file and logs it to the console.
 
 Dependencies: casperjs + phantomjs
 
