@@ -1,3 +1,5 @@
+// getEPS.js
+
 var fs = require('fs');
 var casper = require('casper').create();
 
@@ -38,12 +40,11 @@ function getTickerData(ticker) {
     var values = this.evaluate(getEPS);
 
     // The arrays should have the same length:
-    casper.echo("titles length: " + titles.length + " items: " + titles);
-    casper.echo("values length: " + values.length + " items: " + values);
+    casper.echo("titles: " + titles);
+    casper.echo("values: " + values);
 
     // Write the raw eps data to a csv file:
     //======================================
-
     fs.write(dataFile, ticker, 'a');
     fs.write(dataFile, '\n', 'a');
     fs.write(dataFile, titles.join(','), 'a');
@@ -51,24 +52,31 @@ function getTickerData(ticker) {
     fs.write(dataFile, values.join(','), 'a');
     fs.write(dataFile, '\n\n', 'a');
 
+    // trim out null values (don't do this earlier, it'll lose the date/val assoc)
+    values = values.filter(function(item) { return item.indexOf('—') == -1 });
+
     // Write the eps average to a csv file:
     //=====================================
-
-    // arrays are ascending, switch to descending:
-    titles.reverse();
-    values.reverse();
-    // Calculate the average:
-    var sum = 0;
-    // skip the trailing twelve months value
-    var pos = titles.indexOf('TTM') + 1;
-    casper.echo('TTM INDEX: ' + pos);
-    for (var i=pos; i<years+pos; i++) {
-      sum += parseInt(values[i]);
+    extraIndex = (values.indexOf('TTM') != -1 ? 1 : 0)
+    if (values.length >= years + extraIndex) {
+      // arrays are ascending, switch to descending:
+      titles.reverse();
+      values.reverse();
+      // Calculate the average:
+      var sum = 0;
+      // skip the trailing twelve months value
+      var pos = titles.indexOf('TTM') + 1;
+      casper.echo('TTM INDEX: ' + pos);
+      for (var i=pos; i<years+pos; i++) {
+        sum += parseFloat(values[i]);
+      }
+      var epsAvg = (sum === 0) ? 0 : sum/years;
+      // Write to file:
+      var epsAvgString = ticker + ',' + epsAvg + '\n'
+      fs.write(avgFile, epsAvgString, 'a');
+    } else {
+      console.log(ticker + ' does not have ' + years + ' years of history')
     }
-    var epsAvg = (sum === 0) ? 0 : sum/years;
-    // Write to file:
-    var epsAvgString = ticker + ',' + epsAvg + '\n'
-    fs.write(avgFile, epsAvgString, 'a');
   });
 }
 
@@ -99,8 +107,17 @@ casper.userAgent(
 );
 var symbols = [];
 casper.start().then(function () {
-  // Read the symbols:
-  symbols = (fs.read('symbols.txt').split('\n')); 
+  // Read the symbols (single-line):
+  //symbols = (fs.read('symbols.txt').split('\n')); 
+  // Read the symbols (csv):
+  symbols = fs.read('companylist.csv').split('\n');
+  symbols = symbols.map( function(infoline) {
+    return infoline.split(',')[0].replace(/"| /g, '');
+  });
+  if (symbols[0] === "Symbol") {
+    symbols.shift();
+  }
+  console.log("symbols: " + symbols);
 
   // overwrite the existing data file
   fs.write(dataFile, '');
@@ -111,9 +128,16 @@ casper.start().then(function () {
     self.then(function() {
       casper.echo("Getting EPS for symbol: " + symbol);
       getTickerData(symbol);
+      sleep(5000);
     });
   });
 });
+
+function sleep(ms) {
+  var start = new Date().getTime(), expire = start + ms;
+  while (new Date().getTime() < expire) { }
+  return;
+}
 
 casper.run();
 
