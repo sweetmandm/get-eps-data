@@ -75,9 +75,9 @@ def makeEpsRecord (ticker, year, month, eps)
 end
 
 def setupDatabase
-  @dbpath = 'tickerdata.db'
+  @dbpath = '../data/data.db'
   File.delete(@dbpath)
-  @db = SQLite3::Database.new 'tickerdata.db'
+  @db = SQLite3::Database.new @dbpath
   @db.execute <<-SQL
     CREATE TABLE tickers (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

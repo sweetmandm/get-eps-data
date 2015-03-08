@@ -1,6 +1,6 @@
 using SQLite
 
-db = SQLiteDB("tickerdata.db")
+db = SQLiteDB("../data/data.db")
 tickers = query(db, "SELECT ticker, id FROM tickers")
 
 tickernames = tickers.values[1]

@@ -4,7 +4,7 @@ var fs = require('fs');
 var casper = require('casper').create();
 
 // Input
-var tickerFile = 'resources/nasdaq-3-5-2015.csv';
+var tickerFile = '../tickers/nasdaq-3-5-2015.csv';
 var BEGIN_TICKER = ''
 // Output
 var scrapedir = destinationDirectory();
@@ -20,7 +20,7 @@ function destinationDirectory() {
   var dirname = (currentTime.getFullYear() + "-" +
                  (currentTime.getMonth() + 1) + "-" + 
                  currentTime.getDate());
-  return fs.pathJoin(fs.workingDirectory, 'scrapes', dirname);
+  return fs.pathJoin(fs.workingDirectory, '../data/html', dirname);
 }
 
 function getSymbols(source) {
