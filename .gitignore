@@ -1,5 +1,4 @@
 .DS_Store
 *.swp
 *.swo
-eps-data.csv
-eps-7-year-avg.csv
+config
